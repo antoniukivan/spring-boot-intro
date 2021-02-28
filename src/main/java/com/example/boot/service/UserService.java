@@ -1,5 +1,10 @@
 package com.example.boot.service;
 
-public interface UserService {
+import com.example.boot.model.User;
+import java.util.Optional;
 
+public interface UserService {
+    User add(User user);
+
+    Optional<User> getById(Long id);
 }
