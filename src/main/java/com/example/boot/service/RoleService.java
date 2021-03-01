@@ -5,5 +5,5 @@ import com.example.boot.model.Role;
 public interface RoleService {
     Role save(Role role);
 
-    Role getByName(String name);
+    Role getByRoleName(Role.RoleName roleName);
 }
