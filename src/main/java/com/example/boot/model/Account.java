@@ -8,12 +8,19 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "accounts")
 public class Account {
@@ -25,8 +32,10 @@ public class Account {
     private String accountNumber;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Currency currency;
 
+    @Column(nullable = false)
     private BigDecimal balance;
 
     @Column(name = "is_active")
@@ -34,5 +43,6 @@ public class Account {
 
     @ManyToOne
     @ToString.Exclude
+    @JoinColumn(nullable = false)
     private User user;
 }

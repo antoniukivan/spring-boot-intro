@@ -1,19 +1,12 @@
 package com.example.boot.service.impl;
 
 import com.example.boot.model.Account;
-import com.example.boot.model.Currency;
 import com.example.boot.model.Transaction;
 import com.example.boot.repository.AccountRepository;
 import com.example.boot.repository.TransactionRepository;
 import com.example.boot.service.TransactionService;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import com.example.boot.util.Converter;
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.transaction.Transactional;
@@ -39,49 +32,42 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public void transfer(String accountFromNumber, String accountToNumber, BigDecimal amount) {
-        Account accountFrom = accountRepository.findByAccountNumber(accountFromNumber).get();
-        Account accountTo = accountRepository.findByAccountNumber(accountToNumber).get();
+        Account accountFrom = accountRepository.findByAccountNumber(accountFromNumber).orElseThrow(
+                () -> new RuntimeException("There is no source account with number: "
+                        + accountFromNumber));
+        Account accountTo = accountRepository.findByAccountNumber(accountToNumber).orElseThrow(
+                () -> new RuntimeException("There is no destination account with number: "
+                        + accountToNumber));
 
         if (accountFrom.getBalance().compareTo(amount) >= 0) {
-            amount = accountFrom.getCurrency() == accountTo.getCurrency() ? amount
-                    : convert(amount, accountFrom.getCurrency(), accountTo.getCurrency());
             accountFrom.setBalance(accountFrom.getBalance().subtract(amount));
+            amount = accountFrom.getCurrency() == accountTo.getCurrency() ? amount :
+                    Converter.convert(amount, accountFrom.getCurrency(), accountTo.getCurrency());
+            accountTo.setBalance(accountTo.getBalance().add(amount));
         } else {
-            throw new RuntimeException("There is not enough money on the account: " + accountFrom
-                    + " to transfer: " + amount + accountFrom.getCurrency());
+            throw new RuntimeException("There is not enough money on the account: "
+                    + accountFrom + " to transfer: " + amount + accountFrom.getCurrency());
         }
 
-        accountTo.setBalance(accountTo.getBalance().add(amount));
+        Transaction inComingTransaction = Transaction.builder()
+                .accountFrom(accountFrom)
+                .accountTo(accountTo)
+                .amount(amount)
+                .date(LocalDateTime.now())
+                .type(Transaction.Type.INCOMING)
+                .build();
 
-        Transaction transaction = new Transaction();
-        transaction.setAccountFrom(accountFrom);
-        transaction.setAccountTo(accountTo);
-        transaction.setAmount(amount);
-        transaction.setDate(LocalDateTime.now());
-        transaction.setType(Transaction.Type.OUTCOMING);
+        Transaction outComingTransaction = Transaction.builder()
+                .accountFrom(accountFrom)
+                .accountTo(accountTo)
+                .amount(amount)
+                .date(LocalDateTime.now())
+                .type(Transaction.Type.OUTCOMING)
+                .build();
 
-        transactionRepository.save(transaction);
+        transactionRepository.save(inComingTransaction);
+        transactionRepository.save(outComingTransaction);
         accountRepository.save(accountFrom);
         accountRepository.save(accountTo);
-    }
-
-    private BigDecimal convert(BigDecimal amount, Currency from, Currency to) {
-        String urlString = "https://api.exchangerate.host/convert?from="
-                .concat(String.valueOf(from)).concat("&to=").concat(String.valueOf(to))
-                .concat("&amount=").concat(String.valueOf(amount));
-
-        try {
-            URL url = new URL(urlString);
-            HttpURLConnection request = (HttpURLConnection) url.openConnection();
-            request.connect();
-
-            JsonParser jp = new JsonParser();
-            JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent()));
-            JsonObject jsonObj = root.getAsJsonObject();
-            String reqResult = jsonObj.get("result").getAsString();
-            return new BigDecimal(reqResult);
-        } catch (Exception e) {
-            throw new RuntimeException("Couldn't convert from: " + from + " to: " + to, e);
-        }
     }
 }
