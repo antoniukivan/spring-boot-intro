@@ -1,5 +1,6 @@
 package com.example.boot.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -28,7 +29,7 @@ public class Transaction {
     @JoinColumn(name = "account_to", nullable = false)
     private Account accountTo;
 
-    private double amount;
+    private BigDecimal amount;
 
     private LocalDateTime date;
 

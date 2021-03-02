@@ -11,10 +11,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
+import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,20 +37,21 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public void transfer(String accountFromNumber, String accountToNumber, double amount) {
+    @Transactional
+    public void transfer(String accountFromNumber, String accountToNumber, BigDecimal amount) {
         Account accountFrom = accountRepository.findByAccountNumber(accountFromNumber).get();
         Account accountTo = accountRepository.findByAccountNumber(accountToNumber).get();
 
-        if (accountFrom.getBalance() >= amount) {
+        if (accountFrom.getBalance().compareTo(amount) >= 0) {
             amount = accountFrom.getCurrency() == accountTo.getCurrency() ? amount
                     : convert(amount, accountFrom.getCurrency(), accountTo.getCurrency());
-            accountFrom.setBalance(accountFrom.getBalance() - amount);
+            accountFrom.setBalance(accountFrom.getBalance().subtract(amount));
         } else {
             throw new RuntimeException("There is not enough money on the account: " + accountFrom
                     + " to transfer: " + amount + accountFrom.getCurrency());
         }
 
-        accountTo.setBalance(accountTo.getBalance() + amount);
+        accountTo.setBalance(accountTo.getBalance().add(amount));
 
         Transaction transaction = new Transaction();
         transaction.setAccountFrom(accountFrom);
@@ -62,7 +65,7 @@ public class TransactionServiceImpl implements TransactionService {
         accountRepository.save(accountTo);
     }
 
-    private double convert(double amount, Currency from, Currency to) {
+    private BigDecimal convert(BigDecimal amount, Currency from, Currency to) {
         String urlString = "https://api.exchangerate.host/convert?from="
                 .concat(String.valueOf(from)).concat("&to=").concat(String.valueOf(to))
                 .concat("&amount=").concat(String.valueOf(amount));
@@ -76,7 +79,7 @@ public class TransactionServiceImpl implements TransactionService {
             JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent()));
             JsonObject jsonObj = root.getAsJsonObject();
             String reqResult = jsonObj.get("result").getAsString();
-            return Double.parseDouble(reqResult);
+            return new BigDecimal(reqResult);
         } catch (Exception e) {
             throw new RuntimeException("Couldn't convert from: " + from + " to: " + to, e);
         }
