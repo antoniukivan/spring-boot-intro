@@ -1,4 +1,4 @@
-package com.example.boot.service.impl;
+package com.example.boot.service;
 
 import com.example.boot.model.Account;
 import java.util.List;
@@ -8,7 +8,7 @@ public interface AccountService {
 
     List<Account> findAllByUserPhoneNumber(String phoneNumber);
 
-    Account findAllByAccountNumber(String accountNumber);
+    Account findByAccountNumber(String accountNumber);
 
     void patch(String accountNumber);
 }
