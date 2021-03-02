@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
 @Entity
@@ -31,9 +32,6 @@ public class Account {
     private boolean isActive;
 
     @ManyToOne
+    @ToString.Exclude
     private User user;
-
-    public enum Currency {
-        USD, EUR, UAH
-    }
 }
