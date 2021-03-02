@@ -4,15 +4,13 @@ import com.example.boot.model.Account;
 import com.example.boot.repository.AccountRepository;
 import com.example.boot.service.AccountService;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
-
-    public AccountServiceImpl(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
-    }
 
     @Override
     public Account save(Account account) {
