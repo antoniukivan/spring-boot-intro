@@ -50,13 +50,12 @@ public class TransactionServiceImpl implements TransactionService {
 
         accountTo.setBalance(accountTo.getBalance() + amount);
 
-        Transaction transaction = Transaction.builder()
-                .accountFrom(accountFrom)
-                .accountTo(accountTo)
-                .amount(amount)
-                .date(LocalDateTime.now())
-                .type(Transaction.Type.OUTCOMING)
-                .build();
+        Transaction transaction = new Transaction();
+        transaction.setAccountFrom(accountFrom);
+        transaction.setAccountTo(accountTo);
+        transaction.setAmount(amount);
+        transaction.setDate(LocalDateTime.now());
+        transaction.setType(Transaction.Type.OUTCOMING);
 
         transactionRepository.save(transaction);
         accountRepository.save(accountFrom);
