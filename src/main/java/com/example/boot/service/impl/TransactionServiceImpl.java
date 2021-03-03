@@ -5,7 +5,6 @@ import com.example.boot.model.Transaction;
 import com.example.boot.repository.AccountRepository;
 import com.example.boot.repository.TransactionRepository;
 import com.example.boot.service.TransactionService;
-import com.example.boot.util.Converter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,20 +30,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public void transfer(String accountFromNumber, String accountToNumber, BigDecimal amount) {
-        Account accountFrom = accountRepository.findByAccountNumber(accountFromNumber).orElseThrow(
-                () -> new RuntimeException("There is no source account with number: "
-                        + accountFromNumber));
-        Account accountTo = accountRepository.findByAccountNumber(accountToNumber).orElseThrow(
-                () -> new RuntimeException("There is no destination account with number: "
-                        + accountToNumber));
-
-        if (accountFrom.getBalance().compareTo(amount) >= 0) {
-            accountFrom.setBalance(accountFrom.getBalance().subtract(amount));
-            amount = accountFrom.getCurrency() == accountTo.getCurrency() ? amount :
-                    Converter.convert(amount, accountFrom.getCurrency(), accountTo.getCurrency());
-            accountTo.setBalance(accountTo.getBalance().add(amount));
-        } else {
+    public void transfer(Account accountFrom, Account accountTo, BigDecimal amount) {
+        if (accountFrom.getBalance().compareTo(amount) < 0) {
             throw new RuntimeException("There is not enough money on the account: "
                     + accountFrom + " to transfer: " + amount + accountFrom.getCurrency());
         }
