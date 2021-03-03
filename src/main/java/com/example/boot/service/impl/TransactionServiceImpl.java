@@ -4,6 +4,7 @@ import com.example.boot.model.Account;
 import com.example.boot.model.Transaction;
 import com.example.boot.repository.AccountRepository;
 import com.example.boot.repository.TransactionRepository;
+import com.example.boot.service.Converter;
 import com.example.boot.service.TransactionService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
+    private final Converter converter;
 
     @Override
     public List<Transaction> getAllByAccount(int page, int size, Account account) {
@@ -36,6 +38,8 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         accountFrom.setBalance(accountFrom.getBalance().subtract(amount));
+        amount = accountFrom.getCurrency() == accountTo.getCurrency() ? amount :
+                converter.convert(accountFrom.getCurrency(), accountTo.getCurrency(), amount);
         accountTo.setBalance(accountTo.getBalance().add(amount));
         accountRepository.save(accountFrom);
         accountRepository.save(accountTo);
