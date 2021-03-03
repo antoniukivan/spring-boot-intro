@@ -9,6 +9,4 @@ public interface AccountService {
     List<Account> findAllByUserPhoneNumber(String phoneNumber);
 
     Account findByAccountNumber(String accountNumber);
-
-    void patch(String accountNumber);
 }

@@ -26,11 +26,4 @@ public class AccountServiceImpl implements AccountService {
     public Account findByAccountNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber).get();
     }
-
-    @Override
-    public void patch(String accountNumber) {
-        Account account = findByAccountNumber(accountNumber);
-        account.setActive(false);
-        accountRepository.save(account);
-    }
 }
