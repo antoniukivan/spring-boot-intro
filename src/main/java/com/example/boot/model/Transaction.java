@@ -2,6 +2,7 @@ package com.example.boot.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -16,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 @Builder
@@ -40,6 +42,7 @@ public class Transaction {
     private BigDecimal amount;
 
     @Column(nullable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd\'T\'HH:mm:ss")
     private LocalDateTime date;
 
     @Enumerated(value = EnumType.STRING)
