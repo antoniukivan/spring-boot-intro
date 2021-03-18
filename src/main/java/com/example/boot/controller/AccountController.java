@@ -55,6 +55,17 @@ public class AccountController {
         return ResponseEntity.ok(account.getBalance());
     }
 
+    @PostMapping("/transfer")
+    public ResponseEntity<Void> transfer(@RequestBody TransactionRequestDto transactionRequestDto) {
+        Account accountFrom = accountService.findByAccountNumber(transactionRequestDto.getAccountNumberFrom());
+        Account accountTo = accountService.findByAccountNumber(transactionRequestDto.getAccountNumberTo());
+        BigDecimal amount = BigDecimal.valueOf(transactionRequestDto.getAmount());
+
+        transactionService.transfer(accountFrom, accountTo, amount);
+
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("//history/{accountNumber}")
     public ResponseEntity<List<TransactionResponseDto>> getPaymentHistory(
             @RequestParam(required = false, defaultValue = "0") Integer page,
@@ -67,17 +78,6 @@ public class AccountController {
                 .map(transactionMapper::getDtoFromModel)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(transactions);
-    }
-
-    @PostMapping("/transfer")
-    public ResponseEntity<Void> transfer(@RequestBody TransactionRequestDto transactionRequestDto) {
-        Account accountFrom = accountService.findByAccountNumber(transactionRequestDto.getAccountNumberFrom());
-        Account accountTo = accountService.findByAccountNumber(transactionRequestDto.getAccountNumberTo());
-        BigDecimal amount = BigDecimal.valueOf(transactionRequestDto.getAmount());
-
-        transactionService.transfer(accountFrom, accountTo, amount);
-
-        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{accountNumber}")
