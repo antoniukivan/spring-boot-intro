@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper implements DtoMapper<User, UserResponseDto>,
         ModelMapper<User, UserRequestDto> {
+
     public static final String ROLE_USER = "USER";
     private final RoleService roleService;
 
