@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 @Builder
@@ -40,6 +41,7 @@ public class Transaction {
     private BigDecimal amount;
 
     @Column(nullable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd\'T\'HH:mm:ss")
     private LocalDateTime date;
 
     @Enumerated(value = EnumType.STRING)
