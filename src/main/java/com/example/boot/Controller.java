@@ -6,17 +6,13 @@ import com.example.boot.model.Role;
 import com.example.boot.model.User;
 import com.example.boot.service.AccountService;
 import com.example.boot.service.RoleService;
-import com.example.boot.service.TransactionService;
 import com.example.boot.service.UserService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class Controller {
     private final AccountService accountService;
-    private final TransactionService transactionService;
     private final UserService userService;
     private final RoleService roleService;
 
@@ -69,18 +64,5 @@ public class Controller {
                 .user(alex)
                 .build();
         accountService.save(second);
-    }
-
-    @GetMapping
-    public List<Account> getAll() {
-        return accountService.findAllByUserPhoneNumber("123");
-    }
-
-    @PostMapping("/transfer")
-    public void transfer(@RequestParam String from, @RequestParam String to,
-                         @RequestParam String amount) {
-        Account accountFrom = accountService.findByAccountNumber(from);
-        Account accountTo = accountService.findByAccountNumber(to);
-        transactionService.transfer(accountFrom, accountTo, new BigDecimal(amount));
     }
 }

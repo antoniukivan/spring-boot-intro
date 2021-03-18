@@ -41,8 +41,10 @@ public class AccountController {
     }
 
     @GetMapping("/by-phone")
-    public ResponseEntity<List<AccountResponseDto>> getAllByPhoneNumber(@RequestParam String phoneNumber) {
-        List<AccountResponseDto> allByUserPhoneNumber = accountService.findAllByUserPhoneNumber(phoneNumber)
+    public ResponseEntity<List<AccountResponseDto>> getAllByPhoneNumber(
+            @RequestParam String phoneNumber) {
+        List<AccountResponseDto> allByUserPhoneNumber
+                = accountService.findAllByUserPhoneNumber(phoneNumber)
                 .stream()
                 .map(accountMapper::getDtoFromModel)
                 .collect(Collectors.toList());
@@ -50,15 +52,18 @@ public class AccountController {
     }
 
     @GetMapping("/{accountNumber}")
-    public ResponseEntity<BigDecimal> getBalanceByAccountNumber(@PathVariable String accountNumber) {
+    public ResponseEntity<BigDecimal> getBalanceByAccountNumber(
+            @PathVariable String accountNumber) {
         Account account = accountService.findByAccountNumber(accountNumber);
         return ResponseEntity.ok(account.getBalance());
     }
 
     @PostMapping("/transfer")
     public ResponseEntity<Void> transfer(@RequestBody TransactionRequestDto transactionRequestDto) {
-        Account accountFrom = accountService.findByAccountNumber(transactionRequestDto.getAccountNumberFrom());
-        Account accountTo = accountService.findByAccountNumber(transactionRequestDto.getAccountNumberTo());
+        Account accountFrom
+                = accountService.findByAccountNumber(transactionRequestDto.getAccountNumberFrom());
+        Account accountTo
+                = accountService.findByAccountNumber(transactionRequestDto.getAccountNumberTo());
         BigDecimal amount = BigDecimal.valueOf(transactionRequestDto.getAmount());
 
         transactionService.transfer(accountFrom, accountTo, amount);
